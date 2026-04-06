@@ -44,21 +44,23 @@ module Legion
             realm = Helpers::Resolver.extract_realm(Helpers::Resolver.principal.to_s)
 
             {
-              provider:    :kerberos,
-              credential:  result[:token],
-              lease_id:    nil,
-              expires_at:  Time.now + (10 * 3600),
-              renewable:   true,
-              issued_at:   Time.now,
-              metadata:    { realm: realm }
+              provider:   :kerberos,
+              credential: result[:token],
+              lease_id:   nil,
+              expires_at: Time.now + (10 * 3600),
+              renewable:  true,
+              issued_at:  Time.now,
+              metadata:   { realm: realm }
             }
-          rescue StandardError
+          rescue StandardError => _e
             nil
           end
 
           # Strips @REALM, downcases, strips whitespace, removes non-word chars (no dots).
           def normalize(val)
-            val.to_s.split('@', 2).first.downcase.strip.gsub(/[^a-z0-9_-]/, '')
+            str = val.to_s
+            username = str.split('@', 2).first || str
+            username.downcase.strip.gsub(/[^a-z0-9_-]/, '')
           end
 
           # Stub for Phase 5 Vault auth delegation. Returns nil.
@@ -77,7 +79,7 @@ module Legion
             return nil unless defined?(Legion::Settings)
 
             Legion::Settings[:kerberos]&.dig(:service_principal)
-          rescue StandardError
+          rescue StandardError => _e
             nil
           end
         end

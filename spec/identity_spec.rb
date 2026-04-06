@@ -181,7 +181,7 @@ RSpec.describe Legion::Extensions::Identity::Kerberos::Identity do
       let(:spnego_result) { { success: true, token: fake_token } }
       let(:spnego_mod) do
         Module.new do
-          def self.obtain_spnego_token(service_principal:)
+          def self.obtain_spnego_token(**)
             { success: true, token: 'YWJjZGVm' }
           end
         end
@@ -242,7 +242,7 @@ RSpec.describe Legion::Extensions::Identity::Kerberos::Identity do
     context 'when obtain_spnego_token returns failure' do
       let(:spnego_mod) do
         Module.new do
-          def self.obtain_spnego_token(service_principal:)
+          def self.obtain_spnego_token(**)
             { success: false, error: 'No credentials cache' }
           end
         end

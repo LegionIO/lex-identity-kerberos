@@ -6,7 +6,7 @@ module Legion
       module Kerberos
         module Helpers
           module Resolver
-            extend self
+            module_function
 
             # Returns the raw Kerberos principal string (e.g. "miverso2@MS.DS.UHC.COM")
             # from Legion::Crypt if available, or nil.
@@ -19,7 +19,10 @@ module Legion
 
             # Extracts the username portion (before @REALM) from a principal string.
             def extract_username(principal_str)
-              principal_str.to_s.split('@', 2).first
+              str = principal_str.to_s
+              return str if str.empty?
+
+              str.split('@', 2).first || str
             end
 
             # Extracts the realm portion (after @) from a principal string, or nil.
