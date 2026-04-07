@@ -13,7 +13,7 @@ the contract interface for the identity pipeline.
 
 **GitHub**: https://github.com/LegionIO/lex-identity-kerberos
 **License**: MIT
-**Version**: 0.1.0
+**Version**: 0.1.1
 
 ## Architecture
 
@@ -31,14 +31,14 @@ Legion::Extensions::Identity::Kerberos
 | `lib/legion/extensions/identity/kerberos.rb` | Entry point; extends Core, declares identity_provider?/remote_invocable?/crypt_required? |
 | `lib/legion/extensions/identity/kerberos/identity.rb` | Provider contract — resolve, provide_token, normalize, vault_auth, capabilities |
 | `lib/legion/extensions/identity/kerberos/helpers/resolver.rb` | principal, extract_username, extract_realm, resolve_identity |
-| `lib/legion/extensions/identity/kerberos/version.rb` | VERSION = '0.1.0' |
+| `lib/legion/extensions/identity/kerberos/version.rb` | VERSION = '0.1.1' |
 
 ## Key Design Decisions
 
 - Reads `Legion::Crypt.kerberos_principal` (set by `KerberosAuth` at boot in legion-crypt).
   No `gssapi` gem, no LDAP. Those stay in `lex-kerberos`.
-- `provide_token` calls `Legion::Extensions::Kerberos::Helpers::Spnego.obtain_spnego_token`
-  only when lex-kerberos is loaded — guarded with `defined?` + `respond_to?`.
+- `provide_token` returns `Legion::Identity::Lease` (or plain Hash fallback if Lease not defined).
+  Delegates to `lex-kerberos` `Helpers::Spnego.obtain_spnego_token` — guarded with `defined?` + `respond_to?`.
 - `canonical_name` regex: `^[a-z0-9][a-z0-9_-]*$` — no dots (AMQP word separator).
 - All framework constants guarded with `defined?` checks (never hard-require optional gems).
 - `vault_auth` returns nil — Phase 5 stub.
@@ -59,17 +59,15 @@ Legion::Extensions::Identity::Kerberos
 
 Group lookup is `lex-identity-ldap`'s responsibility, not this gem's.
 
-### `provide_token` Lease-like hash
+### `provide_token` — `Legion::Identity::Lease`
 ```ruby
-{
-  provider:   :kerberos,
-  credential: '<base64-spnego-token>',
-  lease_id:   nil,
-  expires_at: Time.now + (10 * 3600),
-  renewable:  true,
-  issued_at:  Time.now,
-  metadata:   { realm: 'MS.DS.UHC.COM' }
-}
+lease = Identity.provide_token
+lease.provider    # => :kerberos
+lease.credential  # => '<base64-spnego-token>'
+lease.expires_at  # => Time (10h from now)
+lease.renewable   # => true
+lease.valid?      # => true
+lease.metadata    # => { realm: 'MS.DS.UHC.COM' }
 ```
 
 ## Dependencies
@@ -84,10 +82,12 @@ Optional (guarded, not in gemspec):
 
 ## Testing
 
+54 specs across 2 spec files.
+
 ```bash
 bundle install
-bundle exec rspec     # specs across identity_spec.rb and helpers/resolver_spec.rb
-bundle exec rubocop   # clean
+bundle exec rspec
+bundle exec rubocop
 ```
 
 ---
