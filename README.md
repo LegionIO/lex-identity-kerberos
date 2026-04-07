@@ -50,18 +50,16 @@ Identity.normalize('miverso2@MS.DS.UHC.COM')  # => 'miverso2'
 
 ### `provide_token`
 
-Returns a Lease-like hash with a SPNEGO token (10-hour validity), or `nil` on failure:
+Returns a `Legion::Identity::Lease` with a SPNEGO token (10-hour validity), or `nil` on failure:
 
 ```ruby
-{
-  provider:   :kerberos,
-  credential: '<base64-spnego-token>',
-  lease_id:   nil,
-  expires_at: <Time 10h from now>,
-  renewable:  true,
-  issued_at:  <Time.now>,
-  metadata:   { realm: 'MS.DS.UHC.COM' }
-}
+lease = Identity.provide_token
+lease.provider    # => :kerberos
+lease.credential  # => '<base64-spnego-token>'
+lease.expires_at  # => Time (10h from now)
+lease.renewable   # => true
+lease.valid?      # => true
+lease.metadata    # => { realm: 'MS.DS.UHC.COM' }
 ```
 
 Requires `lex-kerberos` to be loaded and `Legion::Settings[:kerberos][:service_principal]` to be set.

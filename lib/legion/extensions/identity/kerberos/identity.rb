@@ -43,7 +43,7 @@ module Legion
 
             realm = Helpers::Resolver.extract_realm(Helpers::Resolver.principal.to_s)
 
-            {
+            build_lease(
               provider:   :kerberos,
               credential: result[:token],
               lease_id:   nil,
@@ -51,7 +51,7 @@ module Legion
               renewable:  true,
               issued_at:  Time.now,
               metadata:   { realm: realm }
-            }
+            )
           rescue StandardError => _e
             nil
           end
@@ -69,6 +69,12 @@ module Legion
           end
 
           private
+
+          def build_lease(**attrs)
+            return Legion::Identity::Lease.new(**attrs) if defined?(Legion::Identity::Lease)
+
+            attrs
+          end
 
           def spnego_available?
             defined?(Legion::Extensions::Kerberos::Helpers::Spnego) &&

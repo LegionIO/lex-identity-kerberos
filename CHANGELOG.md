@@ -2,6 +2,11 @@
 
 ## [Unreleased]
 
+## [0.1.1] - 2026-04-06
+
+### Fixed
+- `provide_token` now returns `Legion::Identity::Lease` instead of plain Hash, fixing `NoMethodError` in `LeaseRenewer#renew`
+
 ## [0.1.0] - 2026-04-06
 
 ### Added

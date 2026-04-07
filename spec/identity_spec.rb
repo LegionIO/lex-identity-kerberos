@@ -2,6 +2,40 @@
 
 require 'spec_helper'
 
+# Legion::Identity::Lease lives in the legionio gem (not a dependency of this extension).
+# Require it if available, otherwise define a minimal version for spec assertions.
+begin
+  require 'legion/identity/lease'
+rescue LoadError
+  module Legion
+    module Identity
+      class Lease
+        attr_reader :provider, :credential, :lease_id, :expires_at, :renewable, :issued_at, :metadata
+
+        def initialize(provider:, credential:, lease_id: nil, expires_at: nil, renewable: false, issued_at: nil, metadata: {})
+          @provider = provider
+          @credential = credential
+          @lease_id = lease_id
+          @expires_at = expires_at
+          @renewable = renewable
+          @issued_at = issued_at || Time.now
+          @metadata = metadata.freeze
+        end
+
+        def valid?
+          !credential.nil? && !expired?
+        end
+
+        def expired?
+          return false if expires_at.nil?
+
+          Time.now >= expires_at
+        end
+      end
+    end
+  end
+end
+
 RSpec.describe Legion::Extensions::Identity::Kerberos::Identity do
   subject(:identity) { described_class }
 
@@ -208,34 +242,38 @@ RSpec.describe Legion::Extensions::Identity::Kerberos::Identity do
         stub_const('Legion::Settings', settings)
       end
 
-      it 'returns a Lease-like hash' do
+      it 'returns a Legion::Identity::Lease' do
         result = identity.provide_token
-        expect(result).to be_a(Hash)
+        expect(result).to be_a(Legion::Identity::Lease)
       end
 
       it 'sets provider to :kerberos' do
-        expect(identity.provide_token[:provider]).to eq(:kerberos)
+        expect(identity.provide_token.provider).to eq(:kerberos)
       end
 
       it 'sets credential to the token string' do
-        expect(identity.provide_token[:credential]).to eq(fake_token)
+        expect(identity.provide_token.credential).to eq(fake_token)
       end
 
       it 'sets lease_id to nil' do
-        expect(identity.provide_token[:lease_id]).to be_nil
+        expect(identity.provide_token.lease_id).to be_nil
       end
 
       it 'sets renewable to true' do
-        expect(identity.provide_token[:renewable]).to be true
+        expect(identity.provide_token.renewable).to be true
       end
 
       it 'sets expires_at approximately 10 hours from now' do
         result = identity.provide_token
-        expect(result[:expires_at]).to be_within(5).of(Time.now + (10 * 3600))
+        expect(result.expires_at).to be_within(5).of(Time.now + (10 * 3600))
       end
 
       it 'includes realm in metadata' do
-        expect(identity.provide_token[:metadata][:realm]).to eq('MS.DS.UHC.COM')
+        expect(identity.provide_token.metadata[:realm]).to eq('MS.DS.UHC.COM')
+      end
+
+      it 'reports as valid' do
+        expect(identity.provide_token.valid?).to be true
       end
     end
 
