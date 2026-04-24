@@ -13,7 +13,8 @@ module Legion
           def provider_type  = :auth
           def facing         = :human
           def priority       = 100
-          def trust_weight   = 50
+          def trust_weight   = 30
+          def trust_level    = :verified
           def capabilities   = %i[authenticate profile vault_auth outbound_auth]
 
           # Returns a resolved identity hash or nil when no Kerberos principal is available.

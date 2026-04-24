@@ -66,8 +66,14 @@ RSpec.describe Legion::Extensions::Identity::Kerberos::Identity do
   end
 
   describe '.trust_weight' do
-    it 'returns 50' do
-      expect(identity.trust_weight).to eq(50)
+    it 'returns 30' do
+      expect(identity.trust_weight).to eq(30)
+    end
+  end
+
+  describe '.trust_level' do
+    it 'returns :verified for trust_level' do
+      expect(identity.trust_level).to eq(:verified)
     end
   end
 
