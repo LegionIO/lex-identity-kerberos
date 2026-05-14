@@ -6,9 +6,11 @@ SimpleCov.start do
 end
 
 require 'bundler/setup'
+require 'legion/crypt'
+require 'legion/json'
+require 'legion/json/helper'
 require 'legion/logging'
 require 'legion/settings'
-require 'legion/json/helper'
 
 module Legion
   module Extensions

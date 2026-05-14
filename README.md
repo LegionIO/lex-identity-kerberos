@@ -28,11 +28,11 @@ Returns an identity hash or `nil`:
 
 ```ruby
 {
-  canonical_name: 'miverso2',          # ^[a-z0-9][a-z0-9_-]*$ — no dots (AMQP word separator)
+  canonical_name: 'jdoe',          # ^[a-z0-9][a-z0-9_-]*$ — no dots (AMQP word separator)
   kind:           :human,
   source:         :kerberos,
-  principal:      'miverso2@MS.DS.UHC.COM',
-  realm:          'MS.DS.UHC.COM',
+  principal:      'jdoe@CORP.EXAMPLE.COM',
+  realm:          'CORP.EXAMPLE.COM',
   groups:         []                   # group lookup is lex-identity-ldap's responsibility
 }
 ```
@@ -45,7 +45,7 @@ Strips `@REALM`, downcases, trims whitespace, and removes characters outside `[a
 
 ```ruby
 Identity.normalize('User.Name@REALM.COM')  # => 'username'
-Identity.normalize('miverso2@MS.DS.UHC.COM')  # => 'miverso2'
+Identity.normalize('jdoe@CORP.EXAMPLE.COM')  # => 'jdoe'
 ```
 
 ### `provide_token`
@@ -59,7 +59,7 @@ lease.credential  # => '<base64-spnego-token>'
 lease.expires_at  # => Time (10h from now)
 lease.renewable   # => true
 lease.valid?      # => true
-lease.metadata    # => { realm: 'MS.DS.UHC.COM' }
+lease.metadata    # => { realm: 'CORP.EXAMPLE.COM' }
 ```
 
 Requires `lex-kerberos` to be loaded and `Legion::Settings[:kerberos][:service_principal]` to be set.

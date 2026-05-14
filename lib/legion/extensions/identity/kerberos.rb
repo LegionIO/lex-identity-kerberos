@@ -12,7 +12,7 @@ module Legion
 
         def self.identity_provider? = true
         def self.remote_invocable?  = false
-        def self.crypt_required?    = true
+        def self.crypt_required?    = false
       end
     end
   end

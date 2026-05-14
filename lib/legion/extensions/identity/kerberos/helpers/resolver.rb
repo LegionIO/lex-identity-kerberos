@@ -8,7 +8,7 @@ module Legion
           module Resolver
             module_function
 
-            # Returns the raw Kerberos principal string (e.g. "miverso2@MS.DS.UHC.COM")
+            # Returns the raw Kerberos principal string (e.g. "jdoe@CORP.EXAMPLE.COM")
             # from Legion::Crypt if available, or nil.
             def principal
               return nil unless defined?(Legion::Crypt)
