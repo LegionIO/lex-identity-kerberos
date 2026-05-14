@@ -28,10 +28,11 @@ Gem::Specification.new do |spec|
   spec.require_paths = ['lib']
 
   # Core framework dependencies
+  spec.add_dependency 'legion-crypt',    '>= 1.5.13'
   spec.add_dependency 'legion-json',     '>= 1.2.1'
+  spec.add_dependency 'legion-logging',  '>= 1.5.3'
   spec.add_dependency 'legion-settings', '>= 1.3.14'
 
   # Optional runtime dependencies are guarded with defined?() in the source:
-  #   legion-crypt  — for Legion::Crypt.kerberos_principal
   #   lex-kerberos  — for Legion::Extensions::Kerberos::Helpers::Spnego#obtain_spnego_token
 end

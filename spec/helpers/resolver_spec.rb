@@ -6,13 +6,6 @@ RSpec.describe Legion::Extensions::Identity::Kerberos::Helpers::Resolver do
   subject(:resolver) { described_class }
 
   describe '.principal' do
-    context 'when Legion::Crypt is not defined' do
-      it 'returns nil' do
-        hide_const('Legion::Crypt')
-        expect(resolver.principal).to be_nil
-      end
-    end
-
     context 'when Legion::Crypt does not respond to kerberos_principal' do
       before { stub_const('Legion::Crypt', Module.new) }
 
@@ -23,19 +16,19 @@ RSpec.describe Legion::Extensions::Identity::Kerberos::Helpers::Resolver do
 
     context 'when Legion::Crypt.kerberos_principal returns a value' do
       before do
-        crypt = Module.new { def self.kerberos_principal = 'miverso2@MS.DS.UHC.COM' }
+        crypt = Module.new { def self.kerberos_principal = 'jdoe@CORP.EXAMPLE.COM' }
         stub_const('Legion::Crypt', crypt)
       end
 
       it 'returns the principal string' do
-        expect(resolver.principal).to eq('miverso2@MS.DS.UHC.COM')
+        expect(resolver.principal).to eq('jdoe@CORP.EXAMPLE.COM')
       end
     end
   end
 
   describe '.extract_username' do
     it 'returns the portion before @' do
-      expect(resolver.extract_username('miverso2@MS.DS.UHC.COM')).to eq('miverso2')
+      expect(resolver.extract_username('jdoe@CORP.EXAMPLE.COM')).to eq('jdoe')
     end
 
     it 'returns the full string when no realm present' do
@@ -49,7 +42,7 @@ RSpec.describe Legion::Extensions::Identity::Kerberos::Helpers::Resolver do
 
   describe '.extract_realm' do
     it 'returns the realm portion after @' do
-      expect(resolver.extract_realm('miverso2@MS.DS.UHC.COM')).to eq('MS.DS.UHC.COM')
+      expect(resolver.extract_realm('jdoe@CORP.EXAMPLE.COM')).to eq('CORP.EXAMPLE.COM')
     end
 
     it 'returns nil when no @ is present' do
@@ -84,7 +77,7 @@ RSpec.describe Legion::Extensions::Identity::Kerberos::Helpers::Resolver do
 
     context 'when a valid principal is available' do
       before do
-        allow(resolver).to receive(:principal).and_return('miverso2@MS.DS.UHC.COM')
+        allow(resolver).to receive(:principal).and_return('jdoe@CORP.EXAMPLE.COM')
       end
 
       it 'returns a hash' do
@@ -92,7 +85,7 @@ RSpec.describe Legion::Extensions::Identity::Kerberos::Helpers::Resolver do
       end
 
       it 'sets canonical_name to the lowercased username' do
-        expect(resolver.resolve_identity[:canonical_name]).to eq('miverso2')
+        expect(resolver.resolve_identity[:canonical_name]).to eq('jdoe')
       end
 
       it 'sets kind to :human' do
@@ -104,11 +97,11 @@ RSpec.describe Legion::Extensions::Identity::Kerberos::Helpers::Resolver do
       end
 
       it 'preserves the full principal' do
-        expect(resolver.resolve_identity[:principal]).to eq('miverso2@MS.DS.UHC.COM')
+        expect(resolver.resolve_identity[:principal]).to eq('jdoe@CORP.EXAMPLE.COM')
       end
 
       it 'extracts the realm' do
-        expect(resolver.resolve_identity[:realm]).to eq('MS.DS.UHC.COM')
+        expect(resolver.resolve_identity[:realm]).to eq('CORP.EXAMPLE.COM')
       end
 
       it 'returns an empty groups array (no LDAP lookup in this gem)' do

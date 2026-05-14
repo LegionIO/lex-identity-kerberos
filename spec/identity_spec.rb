@@ -116,7 +116,7 @@ RSpec.describe Legion::Extensions::Identity::Kerberos::Identity do
 
     context 'when Legion::Crypt.kerberos_principal returns a full principal' do
       before do
-        crypt = Module.new { def self.kerberos_principal = 'miverso2@MS.DS.UHC.COM' }
+        crypt = Module.new { def self.kerberos_principal = 'jdoe@CORP.EXAMPLE.COM' }
         stub_const('Legion::Crypt', crypt)
       end
 
@@ -126,7 +126,7 @@ RSpec.describe Legion::Extensions::Identity::Kerberos::Identity do
       end
 
       it 'sets canonical_name to the downcased username' do
-        expect(identity.resolve[:canonical_name]).to eq('miverso2')
+        expect(identity.resolve[:canonical_name]).to eq('jdoe')
       end
 
       it 'sets kind to :human' do
@@ -138,11 +138,11 @@ RSpec.describe Legion::Extensions::Identity::Kerberos::Identity do
       end
 
       it 'preserves the full principal' do
-        expect(identity.resolve[:principal]).to eq('miverso2@MS.DS.UHC.COM')
+        expect(identity.resolve[:principal]).to eq('jdoe@CORP.EXAMPLE.COM')
       end
 
       it 'extracts the realm' do
-        expect(identity.resolve[:realm]).to eq('MS.DS.UHC.COM')
+        expect(identity.resolve[:realm]).to eq('CORP.EXAMPLE.COM')
       end
 
       it 'sets groups to an empty array' do
@@ -170,15 +170,15 @@ RSpec.describe Legion::Extensions::Identity::Kerberos::Identity do
 
   describe '.normalize' do
     it 'strips @REALM and downcases' do
-      expect(identity.normalize('miverso2@MS.DS.UHC.COM')).to eq('miverso2')
+      expect(identity.normalize('jdoe@CORP.EXAMPLE.COM')).to eq('jdoe')
     end
 
     it 'downcases a name without realm' do
-      expect(identity.normalize('MIVERSO2')).to eq('miverso2')
+      expect(identity.normalize('JDOE')).to eq('jdoe')
     end
 
     it 'strips leading and trailing whitespace' do
-      expect(identity.normalize('  miverso2  ')).to eq('miverso2')
+      expect(identity.normalize('  jdoe  ')).to eq('jdoe')
     end
 
     it 'removes special characters' do
@@ -237,7 +237,7 @@ RSpec.describe Legion::Extensions::Identity::Kerberos::Identity do
         extensions_mod.const_set(:Kerberos, kerberos_mod)
         stub_const('Legion::Extensions::Kerberos', kerberos_mod)
 
-        crypt = Module.new { def self.kerberos_principal = 'miverso2@MS.DS.UHC.COM' }
+        crypt = Module.new { def self.kerberos_principal = 'jdoe@CORP.EXAMPLE.COM' }
         stub_const('Legion::Crypt', crypt)
 
         settings = Module.new do
@@ -275,7 +275,7 @@ RSpec.describe Legion::Extensions::Identity::Kerberos::Identity do
       end
 
       it 'includes realm in metadata' do
-        expect(identity.provide_token.metadata[:realm]).to eq('MS.DS.UHC.COM')
+        expect(identity.provide_token.metadata[:realm]).to eq('CORP.EXAMPLE.COM')
       end
 
       it 'reports as valid' do
