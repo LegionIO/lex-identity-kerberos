@@ -2,6 +2,11 @@
 
 ## [Unreleased]
 
+## [0.2.1] - 2026-05-14
+
+### Fixed
+- `crypt_required?` changed from `true` to `false` to prevent boot ordering deadlock where kerberos extension was skipped before `Legion::Crypt` finished initializing.
+
 ## [0.2.0] - 2026-04-24
 
 ### Added
